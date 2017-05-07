@@ -37,11 +37,9 @@ def TextProcessing(folder_path, test_size=0.2):
                 break
             with open(os.path.join(new_folder_path, file), 'r') as fp:
                 raw = fp.read()
-            # print raw
             ## --------------------------------------------------------------------------------
             ## jieba分词
-            word_cut = jieba.cut(raw, cut_all=False)
-            word_list = list(word_cut)
+            word_list = cutWordByJieba(raw)
             # print word_list
             ## --------------------------------------------------------------------------------
             data_list.append(word_list)
@@ -54,10 +52,17 @@ def TextProcessing(folder_path, test_size=0.2):
     index = int(len(data_class_list) * test_size) + 1
     train_list = data_class_list[index:]
     test_list = data_class_list[:index]
+    # --------------------------------------------------------------------
+    # 输出测试集数据
+    print('-------------------------------------------------------------------------------------')
+    for i in test_list:
+        print("".join(i[0]))
+        print ('--------------------------------------------------------------------------------------')
+    # --------------------------------------------------------------------
     train_data_list, train_class_list = zip(*train_list)
     test_data_list, test_class_list = zip(*test_list)
 
-    # 统计词频放入all_words_dict
+    # 统计词频放入all_words_dict`
     all_words_dict = {}
     for word_list in train_data_list:
         for word in word_list:
@@ -79,7 +84,6 @@ def words_dict(all_words_list, deleteN, stopwords_set=set()):
     for t in range(deleteN, len(all_words_list), 1):
         if n > 1000:  # feature_words的维度1000
             break
-        # print all_words_list[t]
         if not all_words_list[t].isdigit() and all_words_list[t] not in stopwords_set and 1 < len(
                 all_words_list[t]) < 5:
             feature_words.append(all_words_list[t])
@@ -87,54 +91,148 @@ def words_dict(all_words_list, deleteN, stopwords_set=set()):
     return feature_words
 
 
-def TextFeatures(train_data_list, test_data_list, feature_words):
+def TextClassifier(new_classifier, test_feature_list, test_class_list):
+    print('测试集：')
+    print(type(test_feature_list))
+    print(test_feature_list)
+    # --------------------------------------------------------------------------
+    # 输出分类结果
+    predictRes = new_classifier.predict(test_feature_list)
+    print predictRes
+    for res in predictRes:
+        tempStr = str(res)
+        if tempStr.find('08') > -1:
+            print ('财经')
+        elif tempStr.find('10') > -1:
+            print ('IT')
+        elif tempStr.find('13') > -1:
+            print ('健康')
+        elif tempStr.find('14') > -1:
+            print ('体育')
+        elif tempStr.find('16') > -1:
+            print ('旅游')
+        elif tempStr.find('20') > -1:
+            print ('教育')
+        elif tempStr.find('22') > -1:
+            print ('招聘')
+        elif tempStr.find('23') > -1:
+            print ('文化')
+        elif tempStr.find('24') > -1:
+            print ('军事')
+    print ('测试集新闻条数为：')
+    print (len(predictRes))
+    print('准确率为：')
+    print (new_classifier.score(test_feature_list, test_class_list))
+    # -----------------------------------------------------------------
+    test_accuracy = new_classifier.score(test_feature_list, test_class_list)
+    return test_accuracy
+
+
+def predictNewsType(new_classifier, new_feature):
+    predictRes = new_classifier.predict(new_feature)
+    print predictRes
+    for res in predictRes:
+        tempStr = str(res)
+        if tempStr.find('08') > -1:
+            print ('财经')
+        elif tempStr.find('10') > -1:
+            print ('IT')
+        elif tempStr.find('13') > -1:
+            print ('健康')
+        elif tempStr.find('14') > -1:
+            print ('体育')
+        elif tempStr.find('16') > -1:
+            print ('旅游')
+        elif tempStr.find('20') > -1:
+            print ('教育')
+        elif tempStr.find('22') > -1:
+            print ('招聘')
+        elif tempStr.find('23') > -1:
+            print ('文化')
+        elif tempStr.find('24') > -1:
+            print ('军事')
+    return predictRes
+
+
+def createClassifier(train_feature_list, train_class_list):
+    ## sklearn分类器
+    classifier = MultinomialNB().fit(train_feature_list, train_class_list)
+    return classifier
+
+
+def getNewsFeatures(news_data, feature_words):
     def text_features(text, feature_words):
         text_words = set(text)
         ## sklearn特征 list
         features = [1 if word in text_words else 0 for word in feature_words]
         return features
 
-    train_feature_list = [text_features(text, feature_words) for text in train_data_list]
-    test_feature_list = [text_features(text, feature_words) for text in test_data_list]
-    return train_feature_list, test_feature_list
+    new_features = [text_features(text, feature_words) for text in news_data]
+    return new_features
 
 
-def TextClassifier(train_feature_list, test_feature_list, train_class_list, test_class_list):
-    ## sklearn分类器
-    classifier = MultinomialNB().fit(train_feature_list, train_class_list)
-    # print classifier.predict(test_feature_list)
-    # for test_feature in test_feature_list:
-    #     print classifier.predict(test_feature)[0],
-    # print ''
-    test_accuracy = classifier.score(test_feature_list, test_class_list)
-    return test_accuracy
+def cutWordByJieba(new_text):
+    word_cut = jieba.cut(new_text, cut_all=False)
+    word_list = list(word_cut)
+    return word_list
 
 
 if __name__ == '__main__':
+    # 对自带的文本进行测试集和训练集的分类，同时根据训练集对测试集进行分类，验证结果
     print "start"
     ## 文本预处理
     folder_path = './Database/SogouC/Sample'
     all_words_list, train_data_list, test_data_list, train_class_list, test_class_list = TextProcessing(folder_path,
-                                                                                                        test_size=0.05)
-    # 生成stopwords_set
+                                                                                                        test_size=0)
+    # 获取停用词
     stopwords_file = './stopwords_cn.txt'
     stopwords_set = MakeWordsSet(stopwords_file)
     ## 文本特征提取和分类
-    deleteNs = range(0, 1000, 20)
+    deleteNs = range(0, 1000, 1000)
     test_accuracy_list = []
     for deleteN in deleteNs:
         feature_words = words_dict(all_words_list, deleteN, stopwords_set)
-        train_feature_list, test_feature_list = TextFeatures(train_data_list, test_data_list, feature_words)
-        test_accuracy = TextClassifier(train_feature_list, test_feature_list, train_class_list, test_class_list)
+        train_feature_list = getNewsFeatures(train_data_list, feature_words)
+        test_feature_list = getNewsFeatures(test_data_list, feature_words)
+        newsClassifier = createClassifier(train_feature_list, train_class_list)
+        test_accuracy = TextClassifier(newsClassifier, test_feature_list, test_class_list)
         test_accuracy_list.append(test_accuracy)
+
+        print '请输入新闻文本：'
+        news_text = raw_input()
+        news_cut_word = cutWordByJieba(news_text)
+        news_text_feature = getNewsFeatures(news_text, feature_words)
+        print (test_feature_list)
+        print(news_text_feature)
+        exit()
+        # res = predictNewsType(newsClassifier, news_text_feature)
     print test_accuracy_list
+
+    # 对于从外部输入的新闻信息进行分类
+    # feature_words = words_dict(all_words_list, 0, stopwords_set)
+    # train_feature_list = getNewsFeatures(train_data_list, feature_words)
+    # newsClassifier = createClassifier(train_feature_list, train_class_list)
+    # print '请输入新闻文本：'
+    # news_text = raw_input()
+    # news_cut_word = cutWordByJieba(news_text)
+    # for word in news_cut_word:
+    #     print word
+    # exit()
+    # feature_words = words_dict(news_cut_word, 0, stopwords_set)
+    # for feature in feature_words:
+    #     print (feature)
+    # exit()
+    # news_text_feature = getNewsFeatures(news_text, feature_words)
+    # predictRes = newsClassifier.predict(news_text_feature)
+    # print predictRes
+    # print ''
     # 结果评价
-    plt.figure()
-    plt.plot(deleteNs, test_accuracy_list)
-    plt.title('Relationship of deleteNs and test_accuracy')
-    plt.xlabel('deleteNs')
-    plt.ylabel('test_accuracy')
-    plt.show()
-    plt.savefig('result.png')
+    # plt.figure()
+    # plt.plot(deleteNs, test_accuracy_list)
+    # plt.title('Relationship of deleteNs and test_accuracy')
+    # plt.xlabel('deleteNs')
+    # plt.ylabel('test_accuracy')
+    # plt.show()
+    # plt.savefig('result.png')
 
     print "finished"
