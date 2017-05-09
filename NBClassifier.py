@@ -3,7 +3,6 @@ import os
 import time
 import random
 import jieba
-import nltk
 import sklearn
 from sklearn.naive_bayes import MultinomialNB
 import numpy as np
@@ -195,35 +194,53 @@ if __name__ == '__main__':
         train_feature_list = getNewsFeatures(train_data_list, feature_words)
         test_feature_list = getNewsFeatures(test_data_list, feature_words)
         newsClassifier = createClassifier(train_feature_list, train_class_list)
+
+        # 对测试集进行分类
         test_accuracy = TextClassifier(newsClassifier, test_feature_list, test_class_list)
+        test_accuracy = "%.2f" % test_accuracy
         test_accuracy_list.append(test_accuracy)
 
         # ------------------------------------------------------------------------------------------------------------------
         # 对外部输入的文本进行分类
-        # print '请输入新闻文本：'
-        # news_text = raw_input()
-        # news_cut_word = cutWordByJieba(news_text)
-        # count = 1
-        # for news_cut_res in news_cut_word:
-        #     if (count == 1):
-        #         news_text_list = news_cut_word
-        #         count = 2
-        #     else:
-        #         break
-        # testTuple = (news_text_list,)
-        # news_text_feature = getNewsFeatures(testTuple, feature_words)
-        # print(testTuple)
-        # print('-------------------------------------------------')
-        # print(test_data_list)
-        # print('-------------------------------------------------')
-        # print (test_feature_list)
-        # print('-------------------------------------------------')
-        # print(news_text_feature)
-        # print('----------------  result  -----------------------')
-        # res = predictNewsType(newsClassifier, news_text_feature)
+    #     print '请输入新闻文本：'
+    #     news_text = raw_input()
+    #     news_cut_word = cutWordByJieba(news_text)
+    #     count = 1
+    #     for news_cut_res in news_cut_word:
+    #         if (count == 1):
+    #             news_text_list = news_cut_word
+    #             count = 2
+    #         else:
+    #             break
+    #     testTuple = (news_text_list,)
+    #     news_text_feature = getNewsFeatures(testTuple, feature_words)
+    #     print('----------------  输入新闻分词  -----------------------')
+    #     print(testTuple)
+    #     print('----------------  测试集分词    -------------------')
+    #     print(test_data_list)
+    #     print('----------------- 测试集特征集   ---------------------')
+    #     print (test_feature_list)
+    #     print('----------------- 输入新闻特征集 ---------------------')
+    #     print(news_text_feature)
+    #     print('----------------  result  -----------------------')
+    #     res = predictNewsType(newsClassifier, news_text_feature)
+    # exit()
         # --------------------------------------------------------------------------------------------------------------
 
     print test_accuracy_list
+
+    # 统计对于一个测试集多次测试的准确率
+    # accuracy_count = 0
+    # for accuracy in test_accuracy_list:
+    #     if (accuracy == 1):
+    #         accuracy_count += 1
+    # print('测试次数：')
+    # print(len(test_accuracy_list))
+    # print('分类正确次数：')
+    # print(accuracy_count)
+    # print('单条测试数据准确率为：')
+    # print(accuracy_count / len(test_accuracy_list))
+
     # ------------------------------------------------------------------------------------------------------------------
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -233,8 +250,8 @@ if __name__ == '__main__':
     plt.title('Relationship of deleteNs and test_accuracy')
     plt.xlabel('deleteNs')
     plt.ylabel('test_accuracy')
+    plt.savefig('sort_result.png')
     plt.show()
-    plt.savefig('result.png')
     # ------------------------------------------------------------------------------------------------------------------
 
     print "finished"
