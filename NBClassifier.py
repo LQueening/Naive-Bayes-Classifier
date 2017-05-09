@@ -175,6 +175,22 @@ def exportTypeByRes(preidct_res):
             print ('军事')
 
 
+def inputNewsClassifier():
+    print '请输入新闻文本：'
+    news_text = raw_input()
+    news_cut_word = cutWordByJieba(news_text)
+    testTuple = (news_cut_word,)
+    news_text_feature = getNewsFeatures(testTuple, feature_words)
+    print('----------------  result  -----------------------')
+    res = predictNewsType(newsClassifier, news_text_feature)
+    print('输入任意字符继续新闻分类，长度超过3结束')
+    continue_input = raw_input()
+    if (len(continue_input) < 3):
+        inputNewsClassifier()
+    else:
+        return
+
+
 if __name__ == '__main__':
     # 对自带的文本进行测试集和训练集的分类，同时根据训练集对测试集进行分类，验证结果
     print "start"
@@ -208,53 +224,32 @@ if __name__ == '__main__':
     newsClassifier = createClassifier(train_feature_list, train_class_list)
 
     # 对测试集进行分类
-    test_accuracy_list = []
-    test_counts = range(0, 20, 1)
-    for test_count in test_counts:
-        test_data_list, test_class_list = getTestDataByRandom(data_class_list, test_size=0.02)
-        test_feature_list = getNewsFeatures(test_data_list, feature_words)
-        test_accuracy = TextClassifier(newsClassifier, test_feature_list, test_class_list)
-        test_accuracy = "%.2f" % test_accuracy
-        test_accuracy_list.append(test_accuracy)
-
-print test_accuracy_list
+#     test_accuracy_list = []
+#     test_counts = range(0, 10, 1)
+#     for test_count in test_counts:
+#         test_data_list, test_class_list = getTestDataByRandom(data_class_list, test_size=0.02)
+#         test_feature_list = getNewsFeatures(test_data_list, feature_words)
+#         test_accuracy = TextClassifier(newsClassifier, test_feature_list, test_class_list)
+#         test_accuracy = "%.2f" % test_accuracy
+#         test_accuracy_list.append(test_accuracy)
+#
+# print test_accuracy_list
 
 # ------------------------------------------------------------------------------------------------------------------
 # 对外部输入的文本进行分类
-#     print '请输入新闻文本：'
-#     news_text = raw_input()
-#     news_cut_word = cutWordByJieba(news_text)
-#     count = 1
-#     for news_cut_res in news_cut_word:
-#         if (count == 1):
-#             news_text_list = news_cut_word
-#             count = 2
-#         else:
-#             break
-#     testTuple = (news_text_list,)
-#     news_text_feature = getNewsFeatures(testTuple, feature_words)
-#     print('----------------  输入新闻分词  -----------------------')
-#     print(testTuple)
-#     print('----------------  测试集分词    -------------------')
-#     print(test_data_list)
-#     print('----------------- 测试集特征集   ---------------------')
-#     print (test_feature_list)
-#     print('----------------- 输入新闻特征集 ---------------------')
-#     print(news_text_feature)
-#     print('----------------  result  -----------------------')
-#     res = predictNewsType(newsClassifier, news_text_feature)
-# exit()
+inputNewsClassifier()
+exit()
 # --------------------------------------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------------------------------------------
 # 结果评价
-plt.figure()
-plt.plot(test_counts, test_accuracy_list, 'ro')
-plt.title('test accuracy')
-plt.xlabel('test_time')
-plt.ylabel('accuracy')
-plt.savefig('sort_result.png')
-plt.show()
+# plt.figure()
+# plt.plot(test_counts, test_accuracy_list)
+# plt.title('test accuracy')
+# plt.xlabel('test_time')
+# plt.ylabel('accuracy')
+# plt.savefig('sort_result.png')
+# plt.show()
 # ------------------------------------------------------------------------------------------------------------------
 
 print "finished"
