@@ -97,7 +97,7 @@ def words_dict(all_words_list, stopwords_set=set()):
     feature_words = []
     n = 1
     for t in range(0, len(all_words_list), 1):
-        if n > 3000:  # feature_words的维度
+        if n > 2000:  # feature_words的维度
             break
         if not all_words_list[t].isdigit() and all_words_list[t] not in stopwords_set and 1 < len(
                 all_words_list[t]) < 5:
@@ -224,32 +224,32 @@ if __name__ == '__main__':
     newsClassifier = createClassifier(train_feature_list, train_class_list)
 
     # 对测试集进行分类
-#     test_accuracy_list = []
-#     test_counts = range(0, 10, 1)
-#     for test_count in test_counts:
-#         test_data_list, test_class_list = getTestDataByRandom(data_class_list, test_size=0.02)
-#         test_feature_list = getNewsFeatures(test_data_list, feature_words)
-#         test_accuracy = TextClassifier(newsClassifier, test_feature_list, test_class_list)
-#         test_accuracy = "%.2f" % test_accuracy
-#         test_accuracy_list.append(test_accuracy)
-#
-# print test_accuracy_list
+    test_accuracy_list = []
+    test_counts = range(0, 20, 1)
+    for test_count in test_counts:
+        test_data_list, test_class_list = getTestDataByRandom(data_class_list, test_size=0.02)
+        test_feature_list = getNewsFeatures(test_data_list, feature_words)
+        test_accuracy = TextClassifier(newsClassifier, test_feature_list, test_class_list)
+        test_accuracy = "%.2f" % test_accuracy
+        test_accuracy_list.append(test_accuracy)
+
+print test_accuracy_list
 
 # ------------------------------------------------------------------------------------------------------------------
 # 对外部输入的文本进行分类
-inputNewsClassifier()
-exit()
-# --------------------------------------------------------------------------------------------------------------
+# inputNewsClassifier()
+# exit()
+# ------------------------------------------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------------------------------------------
 # 结果评价
-# plt.figure()
-# plt.plot(test_counts, test_accuracy_list)
-# plt.title('test accuracy')
-# plt.xlabel('test_time')
-# plt.ylabel('accuracy')
-# plt.savefig('sort_result.png')
-# plt.show()
+plt.figure()
+plt.plot(test_counts, test_accuracy_list)
+plt.title('test accuracy')
+plt.xlabel('test_time')
+plt.ylabel('accuracy')
+plt.savefig('sort_result.png')
+plt.show()
 # ------------------------------------------------------------------------------------------------------------------
 
 print "finished"
