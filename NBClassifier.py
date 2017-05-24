@@ -28,7 +28,7 @@ def cutWordByJieba(new_text):
     return word_list
 
 
-# 处理各分类文件夹中的各篇新闻
+# 遍历目录获取所有新闻，处理各分类文件夹中的各篇新闻
 def TextProcessing(folder_path, test_size=0.2):
     folder_list = os.listdir(folder_path)
     data_list = []
@@ -52,7 +52,6 @@ def TextProcessing(folder_path, test_size=0.2):
             data_list.append(word_list)
             class_list.append(folder.decode('utf-8'))
             j += 1
-
     ## 划分训练集和测试集
     data_class_list = zip(data_list, class_list)
     random.shuffle(data_class_list)
@@ -76,6 +75,7 @@ def TextProcessing(folder_path, test_size=0.2):
     return data_class_list, all_words_list, train_data_list, train_class_list
 
 
+# 随机获取测试集数据
 def getTestDataByRandom(data_class_list, test_size=0.2):
     random.shuffle(data_class_list)
     index = int(len(data_class_list) * test_size) + 1
@@ -97,7 +97,7 @@ def words_dict(all_words_list, stopwords_set=set()):
     feature_words = []
     n = 1
     for t in range(0, len(all_words_list), 1):
-        if n > 3000:  # feature_words的维度
+        if n > 2000:  # feature_words的维度
             break
         if not all_words_list[t].isdigit() and all_words_list[t] not in stopwords_set and 1 < len(
                 all_words_list[t]) < 5:
@@ -152,6 +152,7 @@ def predictNewsType(new_classifier, new_feature):
     return predictRes
 
 
+# 由于文件夹对应类别为一串字符，需要按照最后两位输出对应的中文类别
 def exportTypeByRes(preidct_res):
     for res in preidct_res:
         tempStr = str(res)
@@ -175,6 +176,7 @@ def exportTypeByRes(preidct_res):
             print ('军事')
 
 
+# 对外部输入的新闻文本预测类别
 def inputNewsClassifier():
     print '请输入新闻文本：'
     news_text = raw_input()
@@ -191,6 +193,7 @@ def inputNewsClassifier():
         return
 
 
+# 入口
 if __name__ == '__main__':
     # 对自带的文本进行测试集和训练集的分类，同时根据训练集对测试集进行分类，验证结果
     print "start"
@@ -224,32 +227,35 @@ if __name__ == '__main__':
     newsClassifier = createClassifier(train_feature_list, train_class_list)
 
     # 对测试集进行分类
-#     test_accuracy_list = []
-#     test_counts = range(0, 10, 1)
-#     for test_count in test_counts:
-#         test_data_list, test_class_list = getTestDataByRandom(data_class_list, test_size=0.02)
-#         test_feature_list = getNewsFeatures(test_data_list, feature_words)
-#         test_accuracy = TextClassifier(newsClassifier, test_feature_list, test_class_list)
-#         test_accuracy = "%.2f" % test_accuracy
-#         test_accuracy_list.append(test_accuracy)
-#
-# print test_accuracy_list
+    test_accuracy_list = []
+    accuracy_sum = 0
+    test_counts = range(0, 20, 1)
+    for test_count in test_counts:
+        test_data_list, test_class_list = getTestDataByRandom(data_class_list, test_size=0.02)
+        test_feature_list = getNewsFeatures(test_data_list, feature_words)
+        test_accuracy = TextClassifier(newsClassifier, test_feature_list, test_class_list)
+        test_accuracy = "%.2f" % test_accuracy
+        accuracy_sum += float(test_accuracy)
+        test_accuracy_list.append(test_accuracy)
 
+print test_accuracy_list
+print('平均准确率为：')
+print ("%.2f" % (accuracy_sum / 20))
 # ------------------------------------------------------------------------------------------------------------------
 # 对外部输入的文本进行分类
-inputNewsClassifier()
-exit()
+# inputNewsClassifier()
+# exit()
 # --------------------------------------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------------------------------------------
 # 结果评价
-# plt.figure()
-# plt.plot(test_counts, test_accuracy_list)
-# plt.title('test accuracy')
-# plt.xlabel('test_time')
-# plt.ylabel('accuracy')
-# plt.savefig('sort_result.png')
-# plt.show()
+plt.figure()
+plt.plot(test_counts, test_accuracy_list)
+plt.title('test accuracy')
+plt.xlabel('test_time')
+plt.ylabel('accuracy')
+plt.savefig('sort_result.png')
+plt.show()
 # ------------------------------------------------------------------------------------------------------------------
 
 print "finished"
