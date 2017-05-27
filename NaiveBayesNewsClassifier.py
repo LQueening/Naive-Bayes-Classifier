@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 
 # 获取停用词
-def MakeWordsSet(words_file):
+def makeWordsSet(words_file):
     words_set = set()
     with open(words_file, 'r') as fp:
         for line in fp.readlines():
@@ -29,7 +29,7 @@ def cutWordByJieba(new_text):
 
 
 # 遍历目录获取所有新闻，处理各分类文件夹中的各篇新闻
-def TextProcessing(folder_path, test_size=0.2):
+def textProcessing(folder_path, test_size=0.2):
     folder_list = os.listdir(folder_path)
     data_list = []
     class_list = []
@@ -125,13 +125,13 @@ def createClassifier(train_feature_list, train_class_list):
 
 
 # 对提取出特征集的文本进行分类
-def TextClassifier(new_classifier, test_feature_list, test_class_list):
+def textClassifier(new_classifier, test_feature_list, test_class_list):
     # ------------------------------------------------------------------------------------------------------------------
     # 输出分类结果
     predictRes = new_classifier.predict(test_feature_list)
     print('测试集：')
     print predictRes
-    exportTypeByRes(predictRes)
+    exportTypeByResult(predictRes)
     print ('测试集新闻条数为：')
     print (len(predictRes))
     print('准确率为：')
@@ -148,12 +148,12 @@ def TextClassifier(new_classifier, test_feature_list, test_class_list):
 def predictNewsType(new_classifier, new_feature):
     predictRes = new_classifier.predict(new_feature)
     print predictRes
-    exportTypeByRes(predictRes)
+    exportTypeByResult(predictRes)
     return predictRes
 
 
 # 由于文件夹对应类别为一串字符，需要按照最后两位输出对应的中文类别
-def exportTypeByRes(preidct_res):
+def exportTypeByResult(preidct_res):
     for res in preidct_res:
         tempStr = str(res)
         if tempStr.find('08') > -1:
@@ -199,7 +199,7 @@ if __name__ == '__main__':
     print "start"
     ## 文本预处理
     folder_path = './Database/SogouC/Sample'
-    data_class_list, all_words_list, train_data_list, train_class_list = TextProcessing(folder_path, test_size=0.02)
+    data_class_list, all_words_list, train_data_list, train_class_list = textProcessing(folder_path, test_size=0.02)
     # ------------------------------------------------------------------------------------------------------------------
     # 测试集的分词结果
     # for cut_res in test_data_list[0]:
@@ -210,7 +210,7 @@ if __name__ == '__main__':
     # ------------------------------------------------------------------------------------------------------------------
     # 获取停用词
     stopwords_file = './stopwords_cn.txt'
-    stopwords_set = MakeWordsSet(stopwords_file)
+    stopwords_set = makeWordsSet(stopwords_file)
     # ------------------------------------------------------------------------------------------------------------------
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -233,7 +233,7 @@ if __name__ == '__main__':
     for test_count in test_counts:
         test_data_list, test_class_list = getTestDataByRandom(data_class_list, test_size=0.02)
         test_feature_list = getNewsFeatures(test_data_list, feature_words)
-        test_accuracy = TextClassifier(newsClassifier, test_feature_list, test_class_list)
+        test_accuracy = textClassifier(newsClassifier, test_feature_list, test_class_list)
         test_accuracy = "%.2f" % test_accuracy
         accuracy_sum += float(test_accuracy)
         test_accuracy_list.append(test_accuracy)
