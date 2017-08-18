@@ -1,12 +1,8 @@
 # coding: utf-8
 import os
-import time
 import random
 import jieba
-import sklearn
 from sklearn.naive_bayes import MultinomialNB
-import numpy as np
-# import pylab as pl
 import matplotlib.pyplot as plt
 
 
@@ -41,7 +37,7 @@ def textProcessing(folder_path, test_size=0.2):
         # 类内循环
         j = 1
         for file in files:
-            if j > 300:
+            if j > 280:
                 break
             with open(os.path.join(new_folder_path, file), 'r') as fp:
                 raw = fp.read()
@@ -97,7 +93,7 @@ def words_dict(all_words_list, stopwords_set=set()):
     feature_words = []
     n = 1
     for t in range(0, len(all_words_list), 1):
-        if n > 2000:  # feature_words的维度
+        if n > 1500:  # feature_words的维度
             break
         if not all_words_list[t].isdigit() and all_words_list[t] not in stopwords_set and 1 < len(
                 all_words_list[t]) < 5:
@@ -181,7 +177,7 @@ def inputNewsClassifier():
     print '请输入新闻文本：'
     news_text = raw_input()
     news_cut_word = cutWordByJieba(news_text)
-    testTuple = (news_cut_word,)
+    testTuple = (news_cut_word)
     news_text_feature = getNewsFeatures(testTuple, feature_words)
     print('----------------  result  -----------------------')
     res = predictNewsType(newsClassifier, news_text_feature)
@@ -238,24 +234,24 @@ if __name__ == '__main__':
         accuracy_sum += float(test_accuracy)
         test_accuracy_list.append(test_accuracy)
 
-print test_accuracy_list
-print('平均准确率为：')
-print ("%.2f" % (accuracy_sum / 20))
-# ------------------------------------------------------------------------------------------------------------------
-# 对外部输入的文本进行分类
-# inputNewsClassifier()
-# exit()
-# --------------------------------------------------------------------------------------------------------------
+    print test_accuracy_list
+    print('平均准确率为：')
+    print ("%.2f" % (accuracy_sum / 20))
+    # ------------------------------------------------------------------------------------------------------------------
+    # 对外部输入的文本进行分类
+    # inputNewsClassifier()
+    # exit()
+    # --------------------------------------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------------------------------------------
-# 结果评价，输出折线图可视化
-plt.figure()
-plt.plot(test_counts, test_accuracy_list)
-plt.title('test accuracy')
-plt.xlabel('test_time')
-plt.ylabel('accuracy')
-plt.savefig('sort_result.png')
-plt.show()
-# ------------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+    # 结果评价，输出折线图可视化
+    plt.figure()
+    plt.plot(test_counts, test_accuracy_list)
+    plt.title('test accuracy')
+    plt.xlabel('test_time')
+    plt.ylabel('accuracy')
+    plt.savefig('sort_result.png')
+    plt.show()
+    # ------------------------------------------------------------------------------------------------------------------
 
-print "finished"
+    print "finished"
